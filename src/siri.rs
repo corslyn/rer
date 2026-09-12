@@ -162,16 +162,17 @@ pub fn get_line_ref(journey: &MonitoredVehicleJourney) -> Option<&str> {
         .and_then(|ref_value| ref_value.value.as_deref())
 }
 
+// c'est beau hein, merci IDFM ;)
 pub fn localized_line_name(
     journey: &MonitoredVehicleJourney,
 ) -> Option<&'static str> {
     let line_ref = get_line_ref(journey)?;
     match line_ref {
-        "STIF:Line::C01742:" => Some("RER B"),
-        "RERA" => Some("RER A"),
-        "RERC" => Some("RER C"),
-        "RERD" => Some("RER D"),
-        "RERE" => Some("RER E"),
+        "STIF:Line::C01742:" => Some("A"),
+        "STIF:Line::C01743:" => Some("B"),
+        "STIF:Line::C01727:" => Some("C"),
+        "STIF:Line::C01728:" => Some("D"),
+        "STIF:Line::C01729:" => Some("E"),
         _ => None,
     }
 }
