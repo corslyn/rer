@@ -67,7 +67,6 @@ pub fn ui(frame: &mut Frame, app: &App, input_focused: bool) {
             Constraint::Length(24),
             Constraint::Length(8),
             Constraint::Length(14),
-            Constraint::Percentage(28),
             Constraint::Min(20),
         ],
     )
