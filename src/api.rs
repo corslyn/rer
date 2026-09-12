@@ -1,9 +1,10 @@
-use reqwest::header::{ACCEPT, HeaderMap, HeaderValue};
+use crate::siri::Root;
 
+use reqwest::header::{ACCEPT, HeaderMap, HeaderValue};
 /// recupere les infos des RER depuis la gare, avec l' "identifiant du référentiel des arrêts​"
 pub fn request(gare: &str, api_key: &str) -> Result<String, reqwest::Error> {
     let url = format!(
-        "https://prim.iledefrance-mobilites.fr/marketplace/stop-monitoring?MonitoringRef=STIF:StopPoint:Q:{}:",
+        "https://prim.iledefrance-mobilites.fr/marketplace/stop-monitoring?MonitoringRef=STIF:StopArea:SP:{}:",
         gare
     );
     let headers = construct_headers(api_key);
@@ -25,4 +26,8 @@ fn construct_headers(api_key: &str) -> HeaderMap {
             .expect("invalid API key header value"),
     );
     headers
+}
+
+pub fn parse_siri(json: &str) -> Result<Root, serde_json::Error> {
+    serde_json::from_str(json)
 }

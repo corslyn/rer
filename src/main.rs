@@ -1,15 +1,19 @@
-mod api;
+pub mod api;
+pub mod app;
+pub mod siri;
 
 use color_eyre::Result;
-use dotenv::dotenv;
 
 fn main() -> Result<()> {
     color_eyre::install()?;
-    dotenv().ok();
+    dotenvy::dotenv()?;
+
     let api_key = std::env::var("API_KEY")?;
-    println!("api_key: {}", api_key);
-    let gare = "462941"; // Chatelet les Halles
+    let gare = "45102"; // Chatelet les Halles
     let response = api::request(gare, &api_key)?;
-    println!("response: {}", response);
+    //println!("response: {}", response);
+    let siri = api::parse_siri(&response)?;
+    //println!("siri: {:?}", siri);
+    let _ = app::pretty_print(&siri);
     Ok(())
 }
