@@ -20,11 +20,17 @@ fn main() -> Result<()> {
 
     let api_key = std::env::var("API_KEY")?;
     let gare = "45102"; // Chatelet les Halles
+    let stations = app::load_stations()?;
     let response = api::request(gare, &api_key)?;
     let siri = api::parse_siri(&response)?;
 
     let mut terminal = setup_terminal()?;
-    let mut app = app::App::new(gare, api_key, siri);
+    let station_name = stations
+        .iter()
+        .find(|station| station.id == gare)
+        .map(|station| station.name.clone())
+        .unwrap_or_else(|| gare.to_owned());
+    let mut app = app::App::new(&station_name, gare, api_key, siri, stations);
     let mut input_focused = true;
 
     loop {
@@ -32,13 +38,16 @@ fn main() -> Result<()> {
         if let Event::Key(key) = event::read()? {
             match key.code {
                 KeyCode::Esc => break,
+                KeyCode::Enter if input_focused && app.select_suggestion() => {}
                 KeyCode::Enter => app.refresh(),
                 KeyCode::Backspace if input_focused => {
-                    app.input.pop();
+                    app.input_backspace();
                 }
                 KeyCode::Char(character) if input_focused => {
-                    app.input.push(character)
+                    app.input_char(character)
                 }
+                KeyCode::Up if input_focused => app.move_suggestion(-1),
+                KeyCode::Down if input_focused => app.move_suggestion(1),
                 KeyCode::Tab => input_focused = !input_focused,
                 _ => {}
             }

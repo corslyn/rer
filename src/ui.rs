@@ -6,8 +6,9 @@ use ratatui::{
 
 pub fn ui(frame: &mut Frame, app: &App, input_focused: bool) {
     let area = frame.area();
-    let [header, timetable, footer] = Layout::vertical([
+    let [header, suggestions, timetable, footer] = Layout::vertical([
         Constraint::Length(3),
+        Constraint::Length(7),
         Constraint::Min(5),
         Constraint::Length(2),
     ])
@@ -20,10 +21,25 @@ pub fn ui(frame: &mut Frame, app: &App, input_focused: bool) {
     };
     let input = Paragraph::new(app.input.as_str()).style(input_style).block(
         Block::bordered()
-            .title(" Code de la gare ")
+            .title(" Nom de la gare ")
             .borders(Borders::ALL),
     );
     frame.render_widget(input, header);
+
+    let suggestion_lines = app
+        .suggestions()
+        .into_iter()
+        .enumerate()
+        .map(|(index, station)| {
+            let style = if app.suggestion_is_selected(index) {
+                Style::default().fg(Color::Black).bg(Color::Yellow)
+            } else {
+                Style::default()
+            };
+            Line::from(format!("  {} ", station.name)).style(style)
+        })
+        .collect::<Vec<_>>();
+    frame.render_widget(Paragraph::new(suggestion_lines), suggestions);
 
     let rows = app.departures.iter().map(|departure| {
         let line = if departure.line == "A" {

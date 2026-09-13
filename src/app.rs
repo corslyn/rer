@@ -1,5 +1,35 @@
 use crate::siri::Root;
 
+#[derive(Debug, Clone)]
+pub struct Station {
+    pub id: String,
+    pub name: String,
+}
+
+pub fn load_stations() -> Result<Vec<Station>, csv::Error> {
+    let mut reader = csv::ReaderBuilder::new()
+        .delimiter(b';')
+        .from_reader(include_bytes!("../zones-d-arrets.csv").as_slice());
+
+    reader
+        .deserialize::<StationRecord>()
+        .map(|record| {
+            record.map(|record| Station {
+                id: record.id,
+                name: record.name,
+            })
+        })
+        .collect()
+}
+
+#[derive(Debug, serde::Deserialize)]
+struct StationRecord {
+    #[serde(rename = "zdaid")]
+    id: String,
+    #[serde(rename = "zdaname")]
+    name: String,
+}
+
 #[derive(Debug)]
 pub struct Departure {
     pub eta: String,
@@ -49,10 +79,19 @@ pub struct App {
     pub departures: Vec<Departure>,
     pub status: String,
     api_key: String,
+    station_id: String,
+    stations: Vec<Station>,
+    suggestion_index: Option<usize>,
 }
 
 impl App {
-    pub fn new(station: &str, api_key: String, root: Root) -> Self {
+    pub fn new(
+        station: &str,
+        station_id: &str,
+        api_key: String,
+        root: Root,
+        stations: Vec<Station>,
+    ) -> Self {
         let mut app = Self {
             station: station.to_owned(),
             input: station.to_owned(),
@@ -60,19 +99,79 @@ impl App {
             departures: Vec::new(),
             status: String::new(),
             api_key,
+            station_id: station_id.to_owned(),
+            stations,
+            suggestion_index: None,
         };
         app.set_data(root);
         app
     }
 
-    pub fn refresh(&mut self) {
-        let response = match crate::api::request(&self.input, &self.api_key) {
-            Ok(response) => response,
-            Err(error) => {
-                self.status = format!("CPT: {error}");
-                return;
-            }
+    pub fn suggestions(&self) -> Vec<&Station> {
+        let query = self.input.trim().to_lowercase();
+        if query.is_empty() {
+            return Vec::new();
+        }
+
+        self.stations
+            .iter()
+            .filter(|station| station.name.to_lowercase().contains(&query))
+            .take(6)
+            .collect()
+    }
+
+    pub fn suggestion_is_selected(&self, index: usize) -> bool {
+        self.suggestion_index == Some(index)
+    }
+
+    pub fn input_char(&mut self, character: char) {
+        self.input.push(character);
+        self.suggestion_index = None;
+    }
+
+    pub fn input_backspace(&mut self) {
+        self.input.pop();
+        self.suggestion_index = None;
+    }
+
+    pub fn move_suggestion(&mut self, direction: i32) {
+        let count = self.suggestions().len();
+        if count == 0 {
+            return;
+        }
+
+        let current = self.suggestion_index.unwrap_or(0) as i32;
+        self.suggestion_index =
+            Some((current + direction).rem_euclid(count as i32) as usize);
+    }
+
+    pub fn select_suggestion(&mut self) -> bool {
+        let suggestions = self.suggestions();
+        let Some(index) = self.suggestion_index else {
+            return false;
         };
+        let Some(station) = suggestions.get(index) else {
+            return false;
+        };
+        let name = station.name.clone();
+        let id = station.id.clone();
+
+        self.input = name.clone();
+        self.station = name;
+        self.station_id = id;
+        self.suggestion_index = None;
+        true
+    }
+
+    pub fn refresh(&mut self) {
+        let response =
+            match crate::api::request(&self.station_id, &self.api_key) {
+                Ok(response) => response,
+                Err(error) => {
+                    self.status = format!("CPT: {error}");
+                    return;
+                }
+            };
         let root = match crate::api::parse_siri(&response) {
             Ok(root) => root,
             Err(error) => {
@@ -81,7 +180,6 @@ impl App {
             }
         };
 
-        self.station = self.input.clone();
         self.set_data(root);
         self.status = "Affichage mis a jour".to_owned();
     }
@@ -98,8 +196,8 @@ impl App {
                     .monitoring_ref
                     .as_ref()
                     .and_then(|reference| reference.value.as_deref())?;
-                if !monitoring_ref.ends_with(&format!(":{}:", self.station))
-                    && monitoring_ref != self.station
+                if !monitoring_ref.ends_with(&format!(":{}:", self.station_id))
+                    && monitoring_ref != self.station_id
                 {
                     return None;
                 }
