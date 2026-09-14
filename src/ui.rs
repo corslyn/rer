@@ -80,6 +80,7 @@ pub fn ui(frame: &mut Frame, app: &App, input_focused: bool) {
             line,
             Cell::from(departure.train.clone()),
             Cell::from(departure.destination.clone()),
+            Cell::from(departure.platform.clone()),
         ])
     });
     let table = Table::new(
@@ -89,12 +90,19 @@ pub fn ui(frame: &mut Frame, app: &App, input_focused: bool) {
             Constraint::Length(8),
             Constraint::Length(14),
             Constraint::Min(20),
+            Constraint::Length(8),
         ],
     )
     .header(
-        Row::new(["Heure estimée d'arrivée", "Ligne", "Train", "Direction"])
-            .style(Style::default().fg(Color::Cyan).bold())
-            .bottom_margin(1),
+        Row::new([
+            "Temps estimé avant arrivée",
+            "Ligne",
+            "Train",
+            "Direction",
+            "Voie",
+        ])
+        .style(Style::default().fg(Color::Cyan).bold())
+        .bottom_margin(1),
     )
     .block(
         Block::bordered()

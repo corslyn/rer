@@ -38,6 +38,7 @@ pub struct Departure {
     pub line: String,
     pub train: String,
     pub stop: String,
+    pub platform: String,
     pub destination: String,
 }
 
@@ -80,6 +81,7 @@ pub struct App {
     pub line: Option<String>,
     pub departures: Vec<Departure>,
     pub status: String,
+    pub platform: String,
     api_key: String,
     station_id: String,
     stations: Vec<Station>,
@@ -100,6 +102,7 @@ impl App {
             line: None,
             departures: Vec::new(),
             status: String::new(),
+            platform: String::new(),
             api_key,
             station_id: station_id.to_owned(),
             stations,
@@ -213,6 +216,10 @@ impl App {
                 let destination = crate::siri::get_destination_name(&journey)
                     .unwrap_or("jsp ou ca va mdr")
                     .to_owned();
+
+                let platform = crate::siri::get_platform_name(&journey)
+                    .unwrap_or("N/A")
+                    .to_owned();
                 let call = journey.monitored_call?;
 
                 let eta = match call.expected_arrival_time {
@@ -240,6 +247,7 @@ impl App {
                         .first()
                         .and_then(|value| value.value.clone())
                         .unwrap_or_else(|| "jsp ca s'arrete ou".to_owned()),
+                    platform,
                     destination,
                 })
             })

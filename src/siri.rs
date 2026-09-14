@@ -141,6 +141,14 @@ pub struct TrainNumbers {
     pub train_number_ref: Vec<RefValue>,
 }
 
+pub fn get_platform_name(journey: &MonitoredVehicleJourney) -> Option<&str> {
+    journey
+        .monitored_call
+        .as_ref()
+        .and_then(|call| call.departure_platform_name.as_ref())
+        .and_then(|platform| platform.value.as_deref())
+}
+
 pub fn get_train_name(journey: &MonitoredVehicleJourney) -> Option<&str> {
     journey
         .vehicle_journey_name
