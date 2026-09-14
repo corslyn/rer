@@ -1,4 +1,5 @@
 use crate::app::App;
+
 use ratatui::{
     prelude::*,
     widgets::{Block, Borders, Cell, Paragraph, Row, Table, TableState},
@@ -71,7 +72,7 @@ pub fn ui(frame: &mut Frame, app: &App, input_focused: bool) {
             Cell::from(departure.line.clone())
         };
         Row::new([
-            Cell::from(departure.eta.clone()),
+            Cell::from(format!("{} min", departure.eta)),
             line,
             Cell::from(departure.train.clone()),
             Cell::from(departure.destination.clone()),

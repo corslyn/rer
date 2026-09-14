@@ -1,3 +1,5 @@
+use chrono::{DateTime, Utc};
+
 use crate::siri::Root;
 
 #[derive(Debug, Clone)]
@@ -32,7 +34,7 @@ struct StationRecord {
 
 #[derive(Debug)]
 pub struct Departure {
-    pub eta: String,
+    pub eta: i64,
     pub line: String,
     pub train: String,
     pub stop: String,
@@ -212,11 +214,24 @@ impl App {
                     .unwrap_or("jsp ou ca va mdr")
                     .to_owned();
                 let call = journey.monitored_call?;
+
+                let eta = match call.expected_arrival_time {
+                    Some(time) => time
+                        .parse::<DateTime<Utc>>()
+                        .expect("CPT")
+                        .signed_duration_since(Utc::now())
+                        .num_minutes(),
+                    None => Utc::now()
+                        .signed_duration_since(Utc::now())
+                        .num_minutes(),
+                };
+
+                if eta.is_negative() {
+                    return None;
+                }
+
                 Some(Departure {
-                    eta: call
-                        .expected_arrival_time
-                        .or(call.expected_departure_time)
-                        .unwrap_or_else(|| "--".to_owned()),
+                    eta,
                     line,
                     train,
                     stop: call
