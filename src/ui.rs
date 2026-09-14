@@ -101,7 +101,9 @@ pub fn ui(frame: &mut Frame, app: &App, input_focused: bool) {
         } else if departure.line == "R" {
             Cell::from(Line::from(Span::styled(
                 "R",
-                Style::default().bg(Color::Rgb(255, 192, 203)),
+                Style::default()
+                    .fg(Color::Black)
+                    .bg(Color::Rgb(255, 192, 203)),
             )))
         } else if departure.line == "U" {
             Cell::from(Line::from(Span::styled(
