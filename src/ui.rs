@@ -46,34 +46,79 @@ pub fn ui(frame: &mut Frame, app: &App, input_focused: bool) {
         let line = if departure.line == "A" {
             Cell::from(Line::from(Span::styled(
                 "A",
-                Style::default().fg(Color::White).bg(Color::Red),
+                Style::default().bg(Color::Red),
             )))
         } else if departure.line == "B" {
             Cell::from(Line::from(Span::styled(
                 "B",
-                Style::default().fg(Color::White).bg(Color::Blue),
+                Style::default().bg(Color::Blue),
             )))
         } else if departure.line == "C" {
             Cell::from(Line::from(Span::styled(
                 "C",
-                Style::default().fg(Color::White).bg(Color::Yellow),
+                Style::default().bg(Color::Yellow),
             )))
         } else if departure.line == "D" {
             Cell::from(Line::from(Span::styled(
                 "D",
-                Style::default().fg(Color::White).bg(Color::Rgb(0, 100, 0)),
+                Style::default().bg(Color::Rgb(0, 100, 0)),
             )))
         } else if departure.line == "E" {
             Cell::from(Line::from(Span::styled(
                 "E",
-                Style::default().fg(Color::White).bg(Color::Magenta),
+                Style::default().bg(Color::Magenta),
+            )))
+        } else if departure.line == "H" {
+            Cell::from(Line::from(Span::styled(
+                "H",
+                Style::default().bg(Color::Rgb(165, 42, 42)),
+            )))
+        } else if departure.line == "J" {
+            Cell::from(Line::from(Span::styled(
+                "J",
+                Style::default().bg(Color::LightGreen),
+            )))
+        } else if departure.line == "K" {
+            Cell::from(Line::from(Span::styled(
+                "K",
+                Style::default().bg(Color::Rgb(122, 118, 61)),
+            )))
+        } else if departure.line == "L" {
+            Cell::from(Line::from(Span::styled(
+                "L",
+                Style::default().bg(Color::Rgb(230, 230, 250)),
+            )))
+        } else if departure.line == "N" {
+            Cell::from(Line::from(Span::styled(
+                "N",
+                Style::default().bg(Color::Cyan),
+            )))
+        } else if departure.line == "P" {
+            Cell::from(Line::from(Span::styled(
+                "P",
+                Style::default().bg(Color::Rgb(255, 165, 0)),
+            )))
+        } else if departure.line == "R" {
+            Cell::from(Line::from(Span::styled(
+                "R",
+                Style::default().bg(Color::Rgb(255, 192, 203)),
+            )))
+        } else if departure.line == "U" {
+            Cell::from(Line::from(Span::styled(
+                "U",
+                Style::default().bg(Color::Rgb(220, 20, 60)),
+            )))
+        } else if departure.line == "V" {
+            Cell::from(Line::from(Span::styled(
+                "V",
+                Style::default().bg(Color::Rgb(122, 118, 61)),
             )))
         } else {
             Cell::from(departure.line.clone())
         };
         Row::new([
             Cell::from(if departure.eta == 0 {
-                "en approche".to_string()
+                "en approche / à quai".to_string()
             } else {
                 format!("{} min", departure.eta)
             }),
@@ -94,15 +139,9 @@ pub fn ui(frame: &mut Frame, app: &App, input_focused: bool) {
         ],
     )
     .header(
-        Row::new([
-            "Temps estimé avant arrivée",
-            "Ligne",
-            "Train",
-            "Direction",
-            "Voie",
-        ])
-        .style(Style::default().fg(Color::Cyan).bold())
-        .bottom_margin(1),
+        Row::new(["ETA", "Ligne", "Train", "Direction", "Voie"])
+            .style(Style::default().fg(Color::Cyan).bold())
+            .bottom_margin(1),
     )
     .block(
         Block::bordered()

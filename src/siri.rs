@@ -181,6 +181,16 @@ pub fn localized_line_name(
         "STIF:Line::C01727:" => Some("C"),
         "STIF:Line::C01728:" => Some("D"),
         "STIF:Line::C01729:" => Some("E"),
+        "STIF:Line::C01730:" => Some("P"),
+        "STIF:Line::C01731:" => Some("R"),
+        "STIF:Line::C01736:" => Some("N"),
+        "STIF:Line::C01737:" => Some("H"),
+        "STIF:Line::C01738:" => Some("K"),
+        "STIF:Line::C01739:" => Some("J"),
+        "STIF:Line::C01740:" => Some("L"),
+        "STIF:Line::C01741:" => Some("U"),
+        "STIF:Line::C02711:" => Some("V"),
+
         _ => None,
     }
 }
