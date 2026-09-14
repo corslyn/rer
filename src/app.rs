@@ -220,7 +220,8 @@ impl App {
                         .parse::<DateTime<Utc>>()
                         .expect("CPT")
                         .signed_duration_since(Utc::now())
-                        .num_minutes(),
+                        .num_minutes()
+                        .abs(),
                     None => Utc::now()
                         .signed_duration_since(Utc::now())
                         .num_minutes(),

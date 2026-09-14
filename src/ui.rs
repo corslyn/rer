@@ -72,7 +72,11 @@ pub fn ui(frame: &mut Frame, app: &App, input_focused: bool) {
             Cell::from(departure.line.clone())
         };
         Row::new([
-            Cell::from(format!("{} min", departure.eta)),
+            Cell::from(if departure.eta == 0 {
+                "en approche".to_string()
+            } else {
+                format!("{} min", departure.eta)
+            }),
             line,
             Cell::from(departure.train.clone()),
             Cell::from(departure.destination.clone()),
